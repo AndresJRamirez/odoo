@@ -232,6 +232,9 @@ class PosOrder(models.Model):
         # Oldlin trick
         invoice_line = InvoiceLine.sudo().new(inv_line)
         invoice_line._onchange_product_id()
+        # The onchange might have added taxes that should not be there
+        # replace by the one we get from the order line
+        invoice_line.invoice_line_tax_ids = [(6, False, line.tax_ids.ids)]
         invoice_line.invoice_line_tax_ids = invoice_line.invoice_line_tax_ids.filtered(lambda t: t.company_id.id == line.order_id.company_id.id).ids
         fiscal_position_id = line.order_id.fiscal_position_id
         if fiscal_position_id:
